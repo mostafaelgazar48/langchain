@@ -63,10 +63,11 @@ class AzureOpenAI {
         Topics: Link Development, Generic, Sports, Technology Trends and Innovation, Movies and Cinema, History, Music
         Moods: Natural, Happy, Excited, Playful, Lovestruck, Inspired
 
-        Please respond in this format:
-        Topic: <topic>
-        Mood: <mood>
-        Response: <response>
+        Please respond in json format:
+        {
+        topic: <topic>
+        mood: <mood>
+        response: <response>}
         `;
 
         try {
@@ -86,7 +87,8 @@ class AzureOpenAI {
                     }
                 }
             );
-            return response.choices[0].message.content.trim();
+            const responseMessage =response.data?.choices[0].message.content.trim();
+            return responseMessage;
         } catch (error) {
             console.error('Error fetching response from Azure OpenAI:', error.response ? error.response : error.message);
             return 'An error occurred while fetching data from Azure OpenAI.';
@@ -155,7 +157,7 @@ async function googleSearch(query) {
 
         // Handle sports_results
         if (sportsResults) {
-            const game = sportsResults.game_spotlight;
+            const game = sportsResults.games;
             const teams = game.teams.map(team => {
                 let teamDetails = `Team: ${team.name} (${team.score})\n`;
                 teamDetails += `Thumbnail: ${team.thumbnail}\n`;
@@ -223,6 +225,12 @@ function classifyTopicAndMood(response) {
         }
     }
 
+    //if type of response is string
+    if (typeof response === 'string') {
+        const jsonResponse =JSON.parse(response);
+        return jsonResponse
+        
+    }
     return {
         topic: detectedTopic,
         mood: detectedMood,
