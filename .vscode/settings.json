@@ -1,0 +1,15 @@
+{
+  "cSpell.words": [
+    "Bayan",
+    "ewaybill",
+    "geofencing",
+    "Madar",
+    "nupco",
+    "RUPTELA",
+    "Subquery",
+    "typeorm"
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
+  "editor.formatOnSaveMode": "modifications"
+}
