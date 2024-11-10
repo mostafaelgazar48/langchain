@@ -106,12 +106,14 @@ async function googleSearch(query) {
 
         // create funcrion to check if the query has some words replace with other words
         query = replaceWords(query);
+        const isArabic = /[\u0600-\u06FF]/.test(query);
 
         const response = await getJson({
             q: query,
             api_key: serpApiKey,
             location: "Cairo, Egypt",
             engine: "google",
+            hl:isArabic ? "ar" : "en"
         });
 
         const sportsResults = response?.sports_results;
@@ -147,7 +149,7 @@ async function googleSearch(query) {
 
         // Handle time result
         if (response.answer_box && response.answer_box.type === "time") {
-            const timeResult = `Current Date and Time in ${response.answer_box.date}:\n${response.answer_box.result}`;
+            const timeResult = `${response.answer_box.description}  ${response.answer_box.result}`;
             return classifyTopicAndMood(timeResult);
         }
 
@@ -186,14 +188,7 @@ async function googleSearch(query) {
         // If no answer_box, aggregate snippets from search results
         if (response.organic_results && response.organic_results.length > 0) {
             const topResults = response.organic_results.slice(0, 1); // Get top result
-            const snippets = topResults.map(result => {
-                return {
-                    title: result.title,
-                    link: result.link,
-                    snippet: result.snippet
-                };
-            });
-            return snippets;
+            return classifyTopicAndMood(topResults.map(result => result.snippet).join('\n'));
         } else {
             return "No relevant results found on Google.";
         }
