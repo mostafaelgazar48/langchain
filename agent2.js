@@ -201,7 +201,7 @@ async function googleSearch(query) {
 }
 
 // Function to classify topic and mood based on query response (for both OpenAI and Google search results)
-function classifyTopicAndMood(response) {
+function classifyTopicAndMood(response,fromChatgpt=false) {
     // Define some basic patterns to identify topics and moods
     const topics = ['Link Development', 'Sports', 'Technology Trends and Innovation', 'Movies and Cinema', 'History', 'Music'];
     const moods = ['Natural', 'Happy', 'Excited', 'Playful', 'Lovestruck', 'Inspired'];
@@ -226,7 +226,7 @@ function classifyTopicAndMood(response) {
     }
 
     //if type of response is string
-    if (typeof response === 'string') {
+    if (typeof response === 'string' && fromChatgpt) {
         const jsonResponse =JSON.parse(response);
         return jsonResponse
         
@@ -271,8 +271,17 @@ async function handleQuery(query) {
 
     ];
 
+    const isRealTimeQuery = realTimeKeywords.some(keyword => {
+        const regex = new RegExp(`\\b${keyword.toLowerCase()}\\b`, 'i');
+        const match = regex.test(query.toLowerCase());
+        if (match) {
+            console.log(`Query matches keyword: ${keyword}`);
+        }
+        return match;
+    });
+    console.log(`isRealTimeQuery: ${isRealTimeQuery}`);
     // Check if the query contains any of the real-time keywords
-    const isRealTimeQuery = realTimeKeywords.some(keyword => query.toLowerCase().includes(keyword.toLowerCase()));
+    // const isRealTimeQuery = realTimeKeywords.some(keyword => query.toLowerCase().includes(keyword.toLowerCase()));
 
     let responseText = '';
 
@@ -281,7 +290,7 @@ async function handleQuery(query) {
         responseText = searchResults
     } else {
         const openAIResponse = await new AzureOpenAI().call(query, isArabic ? "ar" : "en");
-        const classifiedResponse = classifyTopicAndMood(openAIResponse);
+        const classifiedResponse = classifyTopicAndMood(openAIResponse,true);
         responseText = classifiedResponse;
     }
 
